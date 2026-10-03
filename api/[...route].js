@@ -160,7 +160,7 @@ async function sendDueReminders(request) {
   return response({ ok: true, date, sent, skipped });
 }
 
-async function handle(request) {
+export async function handle(request) {
   const path = new URL(request.url).pathname.replace(/\/$/, '');
   const secure = new URL(request.url).protocol === 'https:';
   try {
