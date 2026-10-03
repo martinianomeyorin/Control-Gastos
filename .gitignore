@@ -1,4 +1,10 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
+.vercel/
+data/*.db
+data/*.db-shm
+data/*.db-wal
 .DS_Store
