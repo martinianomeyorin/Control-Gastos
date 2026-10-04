@@ -5,6 +5,7 @@
     { "path": "/api/cron/reminders", "schedule": "0 13 * * *" }
   ],
   "rewrites": [
+    { "source": "/importar-excel-2026", "destination": "/importar-excel-2026.html" },
     { "source": "/:path((?!api/).*)", "destination": "/index.html" }
   ]
 }
