@@ -203,10 +203,10 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .draggable-category{cursor:grab;user-select:none}
 .draggable-category:active{cursor:grabbing}
 .parent-category-section{margin:0 0 14px;scroll-margin-top:20px}
-.parent-category-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:13px}
+.parent-category-heading{display:flex;align-items:center;justify-content:flex-start;gap:clamp(20px,3vw,48px);margin-bottom:13px}
 .parent-category-heading h3{font:700 14px Manrope,sans-serif;margin:0;color:#405047}
 .parent-category-heading p{font-size:9px;color:#8a968d;margin:4px 0 0}
-.parent-category-form{display:flex;gap:7px;width:min(100%,320px)}
+.parent-category-form{display:flex;gap:7px;width:min(100%,360px)}
 .parent-category-form input{flex:1;min-width:0;height:34px;border:1px solid #e8ede9;border-radius:7px;background:#fff;color:#46534a;padding:0 9px;font-size:10px}
 .parent-category-form .confirm-button{height:34px}
 .parent-category-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
