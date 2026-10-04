@@ -265,3 +265,14 @@ html[data-theme="dark"] .sidebar.collapsed:hover,html[data-theme="dark"] .sideba
 @media(max-width:600px){.main-content.sidebar-collapsed{margin-left:0}}
 
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Category chart grouping menu */
+.chart-settings{position:relative;z-index:5}
+.chart-settings-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:212px;padding:7px;border:1px solid #e4e9e4;border-radius:11px;background:#fff;box-shadow:0 12px 32px #17201920;display:grid;gap:3px}
+.chart-settings-label{padding:7px 9px 5px;color:#89948b;font-size:10px;font-weight:600}
+.chart-settings-menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:9px;border:0;border-radius:7px;background:transparent;color:#59655c;text-align:left;font:500 11px 'DM Sans',sans-serif;cursor:pointer}
+.chart-settings-menu button:hover,.chart-settings-menu button.selected{background:#edf4ee;color:#397451}
+.chart-settings-menu button svg{width:15px;height:15px;flex:none}
+html[data-theme=dark] .chart-settings-menu{background:#1d2620;border-color:#39483d;box-shadow:0 12px 32px #0006}
+html[data-theme=dark] .chart-settings-label{color:#9eaba1}
+html[data-theme=dark] .chart-settings-menu button{color:#c0cbc2}
+html[data-theme=dark] .chart-settings-menu button:hover,html[data-theme=dark] .chart-settings-menu button.selected{background:#263b2d;color:#a3d2ad}
