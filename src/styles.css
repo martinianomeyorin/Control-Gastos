@@ -177,6 +177,16 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .exchange-rate-box .currency-field>span{top:7px}
 .exchange-rate-box small,.exchange-disclaimer{display:block;font-size:8px;line-height:1.45;color:#8b968e}
 .exchange-rate-box .peso-estimate{color:#397454;font-weight:700}
+/* Espacio para el prefijo monetario y una grilla estable cuando aparece la cotización USD. */
+.currency-field input{padding-left:42px!important}
+.draft-panel .draft-fields{grid-template-columns:repeat(3,minmax(0,1fr));align-items:end}
+.draft-panel .draft-fields>label{min-width:0}
+.draft-panel .draft-fields .closing-note{grid-column:1/-1;align-self:auto}
+.draft-panel .draft-fields>.confirm-button{grid-column:3;justify-self:end;min-width:150px}
+.draft-panel .currency-entry{grid-template-columns:minmax(0,1fr) 62px}
+.draft-panel .exchange-rate-box{min-width:0}
+@media(max-width:700px){.draft-panel .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.draft-panel .draft-fields>.confirm-button{grid-column:1/-1;justify-self:stretch}}
+@media(max-width:420px){.draft-panel .draft-fields{grid-template-columns:1fr}.draft-panel .draft-fields>.confirm-button{grid-column:1}}
 .exchange-disclaimer{margin-top:3px}
 .amount-cell small{display:block;margin-top:3px;font-size:8px;font-weight:500;color:#8d9890;white-space:nowrap}
 html[data-theme="dark"] .currency-entry select{background:#18211b;border-color:#3a473d;color:#e0e8e1}
