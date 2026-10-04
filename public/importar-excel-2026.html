@@ -12,7 +12,7 @@
   <main class="card">
     <h1>Importar los datos de Excel 2026</h1>
     <p>Esta herramienta carga los resúmenes mensuales de gastos, ingresos, inversiones, saldos, tarjetas y vencimientos en tu cuenta. Los gastos se importan agrupados por mes, categoría y medio de pago, tal como aparecen en la planilla.</p>
-    <p>La hoja suma todas las compras con tarjeta bajo “Crédito”, sin indicar qué tarjeta se usó en cada movimiento. Se cargan los nombres, cierres y vencimientos de las tarjetas, pero el total de crédito queda agrupado y no se reparte entre ellas.</p>
+    <p>La importación conserva la tarjeta indicada por el color de cada celda, las cuotas registradas en la planilla y las categorías configuradas para tu cuenta.</p>
     <div class="account" id="account">Comprobando sesión…</div>
     <div id="login" class="hidden">
       <p>Iniciá sesión en Control Gastos con la cuenta indicada y después volvé a esta página.</p>
@@ -46,7 +46,7 @@
     const owns2026=value=>String(value||'').startsWith('2026-');
     const previousMonth=value=>{const[y,m]=value.split('-').map(Number),d=new Date(y,m-2,15);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};
     const credit=payment=>!!payment&&!['Efectivo','Débito'].includes(payment);
-    function dueForMonth(expense,month){if(expense.exactMonthlyAmount){const start=expense.firstMonth||expense.date?.slice(0,7);return start===month?Number(expense.amount)||0:0}if(credit(expense.payment)){const start=expense.firstMonth||expense.date?.slice(0,7);if(!start)return 0;const index=(Number(month.slice(0,4))-Number(start.slice(0,4)))*12+Number(month.slice(5,7))-Number(start.slice(5,7)),count=Math.max(1,Number(expense.installments)||1);if(index<0||index>=count)return 0;const cents=Math.round(Number(expense.amount||0)*100),base=Math.floor(cents/count);return (index===count-1?cents-base*(count-1):base)/100}return expense.date?.slice(0,7)===month?Number(expense.amount)||0:0}
+    function dueForMonth(expense,month){if(expense.importedSchedule){const charge=expense.importedSchedule[month];return charge?Number(charge.amount)||0:0}if(expense.exactMonthlyAmount){const start=expense.firstMonth||expense.date?.slice(0,7);return start===month?Number(expense.amount)||0:0}if(credit(expense.payment)){const start=expense.firstMonth||expense.date?.slice(0,7);if(!start)return 0;const index=(Number(month.slice(0,4))-Number(start.slice(0,4)))*12+Number(month.slice(5,7))-Number(start.slice(5,7)),count=Math.max(1,Number(expense.installments)||1);if(index<0||index>=count)return 0;const cents=Math.round(Number(expense.amount||0)*100),base=Math.floor(cents/count);return (index===count-1?cents-base*(count-1):base)/100}return expense.date?.slice(0,7)===month?Number(expense.amount)||0:0}
     function balanceThrough(expenses,finance,month){const[targetYear,targetMonth]=month.split('-').map(Number),years=[targetYear,...Object.keys(finance).map(key=>Number(key.slice(0,4))),...expenses.flatMap(item=>[Number(item.date?.slice(0,4)),Number((item.firstMonth||item.date?.slice(0,7))?.slice(0,4))]).filter(Number.isFinite)],firstYear=Math.min(...years);let balance=Number(finance[`${firstYear}-01`]?.openingBalance)||0;for(let year=firstYear;year<=targetYear;year++){const last=year===targetYear?targetMonth:12;for(let n=1;n<=last;n++){const key=`${year}-${String(n).padStart(2,'0')}`,values=finance[key]||{},returns=Number(finance[previousMonth(key)]?.returns||0),total=expenses.reduce((sum,item)=>sum+dueForMonth(item,key)*(item.kind==='reimbursement'||item.categoryType==='reimbursement'||String(item.category||item.name||'').toLowerCase()==='reintegros'?-1:1),0);balance+=Number(values.salary||0)+Number(values.internet||0)+Number(values.otherIncome||0)+returns-total-Number(values.investments||0)+Number(values.balanceAdjustment||0)}}return balance}
     async function session(){
       try{
@@ -104,7 +104,7 @@
         const importedServiceIds=new Set((updates.services||[]).map(item=>item.id));
         const mergedServices=[...(current.services||[]).filter(item=>!tagged(item)&&!importedServiceIds.has(item.id)),...(updates.services||[])];
         const mergedClosings={...(current.closings||{})};for(const [month,items] of Object.entries(updates.closings||{}))mergedClosings[month]={...(mergedClosings[month]||{}),...items};
-        const mergedGroups=current.categoryGroups||updates.categoryGroups||[];
+        const mergedGroups=Array.isArray(current.categoryGroups)&&current.categoryGroups.length?current.categoryGroups:updates.categoryGroups||[];
         const values={expenses:mergedExpenses,finance:mergedFinance,categories:mergedCategories,categoryGroups:mergedGroups,cards:mergedCards,services:mergedServices,closings:mergedClosings};
         const body={updates:Object.entries(values).map(([key,value])=>({key,value}))};
         const write=await fetch('/api/data',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),written=await write.json().catch(()=>({}));
