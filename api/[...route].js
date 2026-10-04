@@ -182,7 +182,7 @@ async function sendDueReminders(request) {
   if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) return response({ error: 'No autorizado.' }, 401);
   const gmailUser = process.env.GMAIL_USER, appPassword = process.env.GMAIL_APP_PASSWORD;
   if (!gmailUser || !appPassword) return response({ error: 'Falta configurar GMAIL_USER y GMAIL_APP_PASSWORD.' }, 503);
-  const date = buenosAiresDate(), month = date.slice(0, 7), client = await db();
+  const date = buenosAiresDate(), displayDate = `${date.slice(8, 10)}/${date.slice(5, 7)}/${date.slice(0, 4)}`, month = date.slice(0, 7), client = await db();
   const { rows: users } = await client.execute('SELECT id, email FROM users');
   let sent = 0, skipped = 0;
   for (const user of users) {
@@ -204,8 +204,8 @@ async function sendDueReminders(request) {
     const currency = amount => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
     const htmlItems = items.map(item => `<li style="margin:0 0 14px"><strong>${escapeHtml(item.kind)}: ${escapeHtml(item.name)}</strong><br>${escapeHtml(item.detail)}<br>Monto: ${escapeHtml(currency(item.amount))}</li>`).join('');
     const textItems = items.map(item => `• ${item.kind}: ${item.name} — ${item.detail} — ${currency(item.amount)}`).join('\n');
-    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#24352a"><h2>Vencimientos de hoy</h2><p>Hola ${escapeHtml(user.email)}, estos son tus pagos que vencen hoy (${date}):</p><ul style="padding-left:20px">${htmlItems}</ul><p>Ingresá a Control Gastos para revisar tus vencimientos.</p></div>`;
-    await sendGmail({ from: gmailUser, appPassword, to: user.email, subject: items.length === 1 ? `Vence hoy: ${items[0].name}` : `Tenés ${items.length} vencimientos hoy`, html, text: `Vencimientos de hoy (${date}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` });
+    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#24352a"><img src="https://control-gastos-nu-eight.vercel.app/logoControlGastos.png" alt="Control Gastos" width="88" style="display:block;width:88px;height:auto;margin:0 0 18px"><h2>Vencimientos de hoy</h2><p>Hola ${escapeHtml(user.email)}, estos son tus pagos que vencen hoy (${displayDate}):</p><ul style="padding-left:20px">${htmlItems}</ul><p>Ingresá a Control Gastos para revisar tus vencimientos.</p></div>`;
+    await sendGmail({ from: gmailUser, appPassword, to: user.email, subject: items.length === 1 ? `Vence hoy: ${items[0].name}` : `Tenés ${items.length} vencimientos hoy`, html, text: `Vencimientos de hoy (${displayDate}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` });
     await client.execute({ sql: 'INSERT INTO reminder_delivery(idempotency_key) VALUES(?) ON CONFLICT(idempotency_key) DO NOTHING', args: [idempotencyKey] });
     sent++;
   }
