@@ -115,6 +115,7 @@ html[data-theme="dark"] .date-filter-control>button{background:#29362e;color:#b9
 .transactions-panel{overflow:visible;position:relative;z-index:2}
 .date-filter-control:has(.date-popover){position:relative;z-index:9}
 .donut-slice{cursor:pointer;transform-box:view-box;transform-origin:center;transition:transform .2s ease,stroke-width .2s ease,filter .2s ease;outline:none}
+.donut-center{pointer-events:none}
 .donut-slice:hover,.donut-slice.selected{filter:drop-shadow(0 3px 4px #101b1460)}
 .donut-slice:focus-visible{filter:drop-shadow(0 0 4px #6caf80)}
 .donut-center span{max-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
