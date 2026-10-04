@@ -180,5 +180,9 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .sidebar.collapsed:hover .account-item,.sidebar.collapsed:focus-within .account-item,.sidebar.collapsed:hover .profile,.sidebar.collapsed:focus-within .profile{justify-content:flex-start;padding-left:10px;padding-right:10px}
 html[data-theme="dark"] .sidebar.collapsed:hover,html[data-theme="dark"] .sidebar.collapsed:focus-within{box-shadow:12px 0 35px #0008}
 @media(max-width:800px){.sidebar.collapsed:hover,.sidebar.collapsed:focus-within{width:220px}}
+.sidebar .avatar{flex:none}
+.sidebar .profile>div:not(.avatar){flex:1;min-width:0;overflow:hidden}
+.sidebar .profile strong,.sidebar .profile small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar .profile-more{flex:none}
 
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
