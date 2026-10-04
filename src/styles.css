@@ -191,9 +191,6 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .bank-info .card-currency-totals{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center}
 .bank-info .card-currency-totals span{font-size:8px;color:#9aa39c}
 .bank-info .card-currency-totals b{grid-column:auto;font-size:9px;text-align:right;white-space:nowrap}
-.pay-card-button{grid-column:1/-1;justify-self:start;margin-top:5px;padding:5px 10px;border:1px solid #cee0d1;border-radius:7px;background:#edf5ee;color:#317154;font-size:9px;font-weight:700;cursor:pointer}
-.pay-card-button:disabled{opacity:.6;cursor:default}
-html[data-theme="dark"] .pay-card-button{background:#25382b;border-color:#3c5743;color:#a2d0ac}
 html[data-theme="dark"] .toast-item.warning{background:#302b20;border-color:#645333;color:#ead8a7}
 html[data-theme="dark"] .toast-item.warning .toast-mark{background:#45391f;color:#e5bd5c}
 @media(max-width:700px){.draft-panel .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.draft-panel .draft-fields>.confirm-button{grid-column:1/-1;justify-self:stretch}}
