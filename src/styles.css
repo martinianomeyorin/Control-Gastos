@@ -169,5 +169,16 @@ html[data-theme="dark"] .help-manual-nav button.active{background:#263b2d;color:
 html[data-theme="dark"] .help-manual-content em{color:#9dccaa}
 html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b483f;color:#dce6de}
 @media(max-width:600px){.help-overlay{padding:10px}.help-manual{max-height:calc(100vh - 20px);border-radius:15px}.help-manual-header{padding:17px 16px 14px}.help-manual-header h2{font-size:18px}.help-manual-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.help-manual-nav{flex-direction:row;gap:5px;padding:9px 11px;border-right:0;border-bottom:1px solid #edf1ed;overflow-x:auto}.help-manual-nav button{flex:none;min-height:31px;padding:0 10px;font-size:10px}.help-manual-content{padding:19px 18px}.help-manual-content h3{font-size:18px}.help-manual-footer{padding:10px 13px}.help-manual-footer>span{max-width:58%;line-height:1.4}}
+.sidebar.collapsed{overflow:hidden;transition:width .22s ease,padding .22s ease,box-shadow .22s ease}
+.sidebar.collapsed:hover,.sidebar.collapsed:focus-within{width:236px;padding:27px 17px 15px;overflow:visible;box-shadow:12px 0 35px #0c160d24}
+.sidebar.collapsed:hover .sidebar-brand-row,.sidebar.collapsed:focus-within .sidebar-brand-row{flex-direction:row;justify-content:flex-start;gap:0;margin-bottom:48px}
+.sidebar.collapsed:hover .brand,.sidebar.collapsed:focus-within .brand{justify-content:flex-start;margin:0 0 0 5px}
+.sidebar.collapsed:hover .brand>span:last-child,.sidebar.collapsed:focus-within .brand>span:last-child,.sidebar.collapsed:hover .side-label,.sidebar.collapsed:focus-within .side-label,.sidebar.collapsed:hover .nav-item span,.sidebar.collapsed:focus-within .nav-item span,.sidebar.collapsed:hover .accounts-label,.sidebar.collapsed:focus-within .accounts-label,.sidebar.collapsed:hover .account-item span,.sidebar.collapsed:focus-within .account-item span,.sidebar.collapsed:hover .sidebar-tip,.sidebar.collapsed:focus-within .sidebar-tip,.sidebar.collapsed:hover .profile>div:not(.avatar),.sidebar.collapsed:focus-within .profile>div:not(.avatar),.sidebar.collapsed:hover .profile-more,.sidebar.collapsed:focus-within .profile-more{display:initial}
+.sidebar.collapsed:hover .side-label,.sidebar.collapsed:focus-within .side-label{display:block}
+.sidebar.collapsed:hover .sidebar-tip,.sidebar.collapsed:focus-within .sidebar-tip{display:block}
+.sidebar.collapsed:hover .main-nav .nav-item,.sidebar.collapsed:focus-within .main-nav .nav-item{justify-content:flex-start;gap:12px;padding:0 11px}
+.sidebar.collapsed:hover .account-item,.sidebar.collapsed:focus-within .account-item,.sidebar.collapsed:hover .profile,.sidebar.collapsed:focus-within .profile{justify-content:flex-start;padding-left:10px;padding-right:10px}
+html[data-theme="dark"] .sidebar.collapsed:hover,html[data-theme="dark"] .sidebar.collapsed:focus-within{box-shadow:12px 0 35px #0008}
+@media(max-width:800px){.sidebar.collapsed:hover,.sidebar.collapsed:focus-within{width:220px}}
 
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
