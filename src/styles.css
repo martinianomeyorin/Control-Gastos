@@ -191,6 +191,16 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .bank-info .card-currency-totals{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center}
 .bank-info .card-currency-totals span{font-size:8px;color:#9aa39c}
 .bank-info .card-currency-totals b{grid-column:auto;font-size:9px;text-align:right;white-space:nowrap}
+.table-footer-actions,.movement-pagination{display:flex;align-items:center;gap:8px}
+.movement-pagination{gap:5px}
+.movement-pagination span{min-width:68px;text-align:center;color:#7e8981;font-size:9px}
+.table-footer .movement-pagination button{width:27px;height:27px;justify-content:center;padding:0;border:1px solid #e5ebe5;border-radius:7px;background:#fff;color:#5b7661}
+.table-footer .movement-pagination button:disabled{opacity:.4;cursor:default}
+.table-footer .movement-pagination button svg{width:14px}
+.table-footer .table-month-link{white-space:nowrap}
+html[data-theme="dark"] .movement-pagination span{color:#a5b0a7}
+html[data-theme="dark"] .table-footer .movement-pagination button{background:#202b24;border-color:#3b483f;color:#c1d2c4}
+@media(max-width:600px){.table-footer{height:auto;min-height:39px;flex-wrap:wrap;gap:8px;padding-top:9px}.table-footer-actions{width:100%;justify-content:space-between}}
 html[data-theme="dark"] .toast-item.warning{background:#302b20;border-color:#645333;color:#ead8a7}
 html[data-theme="dark"] .toast-item.warning .toast-mark{background:#45391f;color:#e5bd5c}
 @media(max-width:700px){.draft-panel .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.draft-panel .draft-fields>.confirm-button{grid-column:1/-1;justify-self:stretch}}
