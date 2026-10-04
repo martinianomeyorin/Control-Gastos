@@ -311,3 +311,17 @@ html[data-theme=dark] .export-button:hover{background:#2d4935}
 html[data-theme=dark] .quick-form button.voice-button{background:#26362b;color:#a3d2ad}
 html[data-theme=dark] .quick-form button.voice-button:hover{background:#304535}
 html[data-theme=dark] .quick-form button.voice-button.listening{background:#482b28;color:#f19c8e}
+.profile-edit-trigger{border:0;background:transparent;padding:4px;display:grid;place-items:center;cursor:pointer}
+.profile-edit-trigger:hover{color:#397451}
+.profile-edit-trigger svg{width:17px;height:17px}
+.username-edit-form{display:grid;gap:8px;margin-top:18px}
+.username-edit-form>label{font-size:11px;color:#768278}
+.username-input{height:40px;display:flex;align-items:center;gap:7px;border:1px solid #dce5dd;border-radius:8px;padding:0 11px;background:#fff;color:#66836c}
+.username-input input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#344339;font-size:12px}
+.username-edit-form>small{font-size:9px;line-height:1.5;color:#929d94}
+.username-edit-form .edit-expense-actions{margin-top:12px}
+html[data-theme=dark] .profile-edit-trigger:hover{color:#a3d2ad}
+html[data-theme=dark] .username-edit-form>label{color:#a5b0a7}
+html[data-theme=dark] .username-input{background:#18211b;border-color:#3a473d;color:#a2d0ac}
+html[data-theme=dark] .username-input input{color:#e0e8e1}
+html[data-theme=dark] .username-edit-form>small{color:#9eaba1}
