@@ -184,6 +184,9 @@ html[data-theme="dark"] .sidebar.collapsed:hover,html[data-theme="dark"] .sideba
 .sidebar .profile>div:not(.avatar){flex:1;min-width:0;overflow:hidden}
 .sidebar .profile strong,.sidebar .profile small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sidebar .profile-more{flex:none}
+.sidebar .nav-item{box-sizing:border-box}
+.sidebar .nav-item svg{width:18px;height:18px;flex:0 0 18px;display:block}
+.sidebar .nav-item span{line-height:1.2}
 .main-content.sidebar-collapsed{margin-left:260px}
 @media(max-width:800px){.main-content.sidebar-collapsed{margin-left:244px}}
 @media(max-width:600px){.main-content.sidebar-collapsed{margin-left:0}}
