@@ -97,12 +97,28 @@ async function dataHandler(request, user) {
   if (request.method === 'GET') {
     const result = await client.execute({ sql: 'SELECT namespace, payload FROM user_data WHERE user_id = ?', args: [user.id] });
     const data = Object.fromEntries(result.rows.map(row => [row.namespace, JSON.parse(row.payload)]));
+    const username = await client.execute({ sql: 'SELECT username FROM usernames WHERE user_id = ?', args: [user.id] });
+    if (username.rows[0]) data.profile = { username: username.rows[0].username };
     return response({ user, data });
   }
   if (request.method !== 'PUT' || !requireSameOrigin(request)) return response({ error: 'Método no permitido.' }, 405);
   const body = await request.json();
   const updates = Array.isArray(body.updates) ? body.updates : [{ key: body.key, value: body.value }];
   if (!updates.length || updates.length > appDataKeys.length || updates.some(item => !appDataKeys.includes(item.key) || item.value === undefined) || new Set(updates.map(item => item.key)).size !== updates.length) return response({ error: 'Datos inválidos.' }, 400);
+  const profileUpdate = updates.find(item => item.key === 'profile');
+  if (profileUpdate) {
+    if (updates.length !== 1) return response({ error: 'El perfil debe actualizarse por separado.' }, 400);
+    const username = String(profileUpdate.value?.username || '').trim().replace(/^@/, '');
+    if (!/^[\p{L}\p{N}][\p{L}\p{N}_.-]{2,23}$/u.test(username)) return response({ error: 'Usá un nombre de 3 a 24 caracteres: letras, números, punto, guion o guion bajo.' }, 400);
+    const normalized = username.normalize('NFKC').toLocaleLowerCase('es-AR');
+    try {
+      await client.execute({ sql: 'INSERT INTO usernames(user_id, username, normalized) VALUES(?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET username = excluded.username, normalized = excluded.normalized', args: [user.id, username, normalized] });
+    } catch (error) {
+      if (/unique constraint/i.test(error.message || '')) return response({ error: 'Ese nombre de usuario ya está en uso. Probá con otro.' }, 409);
+      throw error;
+    }
+    return response({ ok: true });
+  }
   await client.batch(updates.map(item => ({ sql: `INSERT INTO user_data(user_id, namespace, payload, updated_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(user_id, namespace) DO UPDATE SET payload=excluded.payload, updated_at=CURRENT_TIMESTAMP`, args: [user.id, item.key, JSON.stringify(item.value)] })));
   return response({ ok: true });
 }

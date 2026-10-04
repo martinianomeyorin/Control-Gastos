@@ -93,12 +93,27 @@ async function runBatch(statements) {
 const schema = [
   `CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, google_sub TEXT NOT NULL UNIQUE, email TEXT NOT NULL, name TEXT NOT NULL, picture TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
   `CREATE TABLE IF NOT EXISTS user_data (user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, namespace TEXT NOT NULL, payload TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(user_id, namespace))`,
+  `CREATE TABLE IF NOT EXISTS usernames (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, username TEXT NOT NULL, normalized TEXT NOT NULL UNIQUE)`,
   `CREATE TABLE IF NOT EXISTS reminder_delivery (idempotency_key TEXT PRIMARY KEY, sent_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
 ];
 
 export async function db() {
   if (tursoUrl && !tursoUrl.startsWith('libsql://') && !tursoUrl.startsWith('https://')) throw new Error('TURSO_DATABASE_URL debe usar libsql:// o https://.');
-  if (!initialized) initialized = Promise.all(schema.map(sql => run(sql)));
+  if (!initialized) initialized = (async () => {
+    await Promise.all(schema.map(sql => run(sql)));
+    const legacyProfiles = await run(`SELECT user_id, payload FROM user_data WHERE namespace = 'profile'`);
+    for (const row of legacyProfiles.rows) {
+      try {
+        const username = String(JSON.parse(row.payload)?.username || '').trim().replace(/^@/, '');
+        if (!/^[\p{L}\p{N}][\p{L}\p{N}_.-]{2,23}$/u.test(username)) continue;
+        const normalized = username.normalize('NFKC').toLocaleLowerCase('es-AR');
+        await run(`INSERT OR IGNORE INTO usernames(user_id, username, normalized) VALUES(?, ?, ?)`, [row.user_id, username, normalized]);
+      } catch (error) {
+        if (!/unique constraint/i.test(error.message || '')) throw error;
+      }
+    }
+    await run(`DELETE FROM user_data WHERE namespace = 'profile'`);
+  })();
   await initialized;
   return { execute: run, batch: runBatch };
 }
