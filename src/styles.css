@@ -351,3 +351,4 @@ html[data-theme=dark] .notification-item p{color:#c5d0c7}
 html[data-theme=dark] .notification-delete{color:#a3afa6}
 html[data-theme=dark] .notification-delete:hover{border-color:#66413c;background:#302321;color:#f0cac4}
 html[data-theme=dark] .notification-empty{color:#a1ada4}
+@media(max-width:600px){.notification-popover{position:fixed;top:var(--notification-top,100px);left:12px;right:12px;width:auto;max-height:min(440px,calc(100dvh - var(--notification-top,100px) - 12px))}}
