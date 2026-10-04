@@ -292,3 +292,14 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .export-button:hover{background:#deeee1;transform:translateY(-1px)}
 html[data-theme=dark] .export-button{background:#23372a;border-color:#3c5a44;color:#8fc59a}
 html[data-theme=dark] .export-button:hover{background:#2d4935}
+@media(max-width:800px){
+ .transactions-panel{min-width:0;overflow:hidden}
+ .transaction-row{width:100%;min-width:0;box-sizing:border-box;grid-template-columns:minmax(0,1fr) auto 42px;grid-template-areas:"description amount actions" "category date actions";gap:7px 6px;padding:10px 0;min-height:unset}
+ .transaction-description{grid-area:description;min-width:0}
+ .transaction-row>.category-pill{grid-area:category;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .transaction-row>.date-cell{grid-area:date;justify-self:end;white-space:nowrap}
+ .transaction-row>.amount-cell{grid-area:amount;white-space:nowrap}
+ .transaction-row-actions{grid-area:actions;align-self:stretch;justify-self:end;gap:0;width:42px}
+ .transaction-row-actions .edit-button,.transaction-row-actions .delete-button{width:21px;height:26px;display:grid;place-items:center;padding:2px}
+ .transaction-row-actions svg{width:14px;height:14px}
+}
