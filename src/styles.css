@@ -303,3 +303,11 @@ html[data-theme=dark] .export-button:hover{background:#2d4935}
  .transaction-row-actions .edit-button,.transaction-row-actions .delete-button{width:21px;height:26px;display:grid;place-items:center;padding:2px}
  .transaction-row-actions svg{width:14px;height:14px}
 }
+.quick-form button.voice-button{background:#edf4ee;color:#397451;transition:background .15s ease,color .15s ease}
+.quick-form button.voice-button:hover{background:#dfede1;color:#2f6c49}
+.quick-form button.voice-button.listening{background:#f8e8e5;color:#b84c43;animation:voice-pulse 1.1s ease-in-out infinite}
+.quick-form .voice-button svg{display:block;width:16px;height:16px}
+@keyframes voice-pulse{50%{box-shadow:0 0 0 5px #d97a6b24}}
+html[data-theme=dark] .quick-form button.voice-button{background:#26362b;color:#a3d2ad}
+html[data-theme=dark] .quick-form button.voice-button:hover{background:#304535}
+html[data-theme=dark] .quick-form button.voice-button.listening{background:#482b28;color:#f19c8e}
