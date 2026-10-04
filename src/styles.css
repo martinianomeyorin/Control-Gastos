@@ -169,6 +169,19 @@ html[data-theme="dark"] .help-manual-nav button.active{background:#263b2d;color:
 html[data-theme="dark"] .help-manual-content em{color:#9dccaa}
 html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b483f;color:#dce6de}
 @media(max-width:600px){.help-overlay{padding:10px}.help-manual{max-height:calc(100vh - 20px);border-radius:15px}.help-manual-header{padding:17px 16px 14px}.help-manual-header h2{font-size:18px}.help-manual-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.help-manual-nav{flex-direction:row;gap:5px;padding:9px 11px;border-right:0;border-bottom:1px solid #edf1ed;overflow-x:auto}.help-manual-nav button{flex:none;min-height:31px;padding:0 10px;font-size:10px}.help-manual-content{padding:19px 18px}.help-manual-content h3{font-size:18px}.help-manual-footer{padding:10px 13px}.help-manual-footer>span{max-width:58%;line-height:1.4}}
+.currency-entry{display:grid;grid-template-columns:minmax(0,1fr) 62px;gap:6px;align-items:center}
+.currency-entry select{height:34px;min-width:0;border:1px solid #e8ede9;border-radius:7px;padding:0 5px;font-size:10px;color:#38443c;background:#fff}
+.exchange-rate-box{display:grid;gap:5px;margin-top:8px}
+.exchange-rate-box>span{font-size:9px;color:#6f7b72}
+.exchange-rate-box .currency-field input{height:30px}
+.exchange-rate-box .currency-field>span{top:7px}
+.exchange-rate-box small,.exchange-disclaimer{display:block;font-size:8px;line-height:1.45;color:#8b968e}
+.exchange-rate-box .peso-estimate{color:#397454;font-weight:700}
+.exchange-disclaimer{margin-top:3px}
+.amount-cell small{display:block;margin-top:3px;font-size:8px;font-weight:500;color:#8d9890;white-space:nowrap}
+html[data-theme="dark"] .currency-entry select{background:#18211b;border-color:#3a473d;color:#e0e8e1}
+html[data-theme="dark"] .exchange-rate-box>span,html[data-theme="dark"] .exchange-rate-box small,html[data-theme="dark"] .exchange-disclaimer,html[data-theme="dark"] .amount-cell small{color:#9eaba1}
+html[data-theme="dark"] .exchange-rate-box .peso-estimate{color:#a2d0ac}
 .sidebar.collapsed{overflow:hidden;transition:width .22s ease,padding .22s ease,box-shadow .22s ease}
 .sidebar.collapsed:hover,.sidebar.collapsed:focus-within{width:236px;padding:27px 17px 15px;overflow:visible;box-shadow:12px 0 35px #0c160d24}
 .sidebar.collapsed:hover .sidebar-brand-row,.sidebar.collapsed:focus-within .sidebar-brand-row{flex-direction:row;justify-content:flex-start;gap:0;margin-bottom:48px}

@@ -112,6 +112,18 @@ function buenosAiresDate() {
   const value = Object.fromEntries(parts.map(part => [part.type, part.value]));
   return `${value.year}-${value.month}-${value.day}`;
 }
+async function exchangeRateHandler() {
+  try {
+    const upstream = await fetch('https://dolarapi.com/v1/dolares/tarjeta', { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(7000) });
+    if (!upstream.ok) return response({ error: 'No se pudo consultar la cotización del dólar tarjeta.' }, 502);
+    const quote = await upstream.json();
+    const rate = Number(quote.venta);
+    if (!Number.isFinite(rate) || rate <= 0) return response({ error: 'La fuente devolvió una cotización inválida.' }, 502);
+    return response({ rate, source: 'Dólar tarjeta de referencia · DolarApi / Ámbito', updatedAt: quote.fechaActualizacion || null }, 200, { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' });
+  } catch {
+    return response({ error: 'No se pudo consultar la cotización. Podés cargarla manualmente.' }, 502);
+  }
+}
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 }
@@ -216,6 +228,7 @@ export async function handle(request) {
   const path = new URL(request.url).pathname.replace(/\/$/, '');
   const secure = new URL(request.url).protocol === 'https:';
   try {
+    if (path === '/api/exchange-rate' && request.method === 'GET') return await exchangeRateHandler();
     if (path === '/api/cron/reminders' && request.method === 'GET') return await sendDueReminders(request);
     if (path === '/api/auth/google/start' && request.method === 'GET') return await startGoogle(request);
     if (path === '/api/auth/google/callback' && request.method === 'GET') return await googleCallback(request);
