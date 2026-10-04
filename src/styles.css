@@ -198,9 +198,15 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .table-footer .movement-pagination button:disabled{opacity:.4;cursor:default}
 .table-footer .movement-pagination button svg{width:14px}
 .table-footer .table-month-link{white-space:nowrap}
+.category-form{max-width:760px;flex-wrap:wrap}
+.category-form input{flex:1 1 180px}
+.category-form select,.managed-category select{height:34px;min-width:140px;border:1px solid #e8ede9;border-radius:7px;background:#fff;color:#46534a;padding:0 8px;font-size:10px}
+.managed-category{grid-template-columns:9px minmax(0,1fr) minmax(105px,.8fr) auto 23px}
+.managed-category select{height:28px;min-width:0;width:100%;font-size:9px}
+html[data-theme="dark"] .category-form select,html[data-theme="dark"] .managed-category select{background:#18211b;border-color:#3a473d;color:#e0e8e1}
 html[data-theme="dark"] .movement-pagination span{color:#a5b0a7}
 html[data-theme="dark"] .table-footer .movement-pagination button{background:#202b24;border-color:#3b483f;color:#c1d2c4}
-@media(max-width:600px){.table-footer{height:auto;min-height:39px;flex-wrap:wrap;gap:8px;padding-top:9px}.table-footer-actions{width:100%;justify-content:space-between}}
+@media(max-width:600px){.table-footer{height:auto;min-height:39px;flex-wrap:wrap;gap:8px;padding-top:9px}.table-footer-actions{width:100%;justify-content:space-between}.category-form{display:grid;grid-template-columns:minmax(0,1fr) auto}.category-form input,.category-form select{width:100%;grid-column:1/-1}.category-form .confirm-button{grid-column:2;grid-row:3}.managed-category{grid-template-columns:9px minmax(0,1fr) auto 23px}.managed-category select{grid-column:2/4;grid-row:2}}
 html[data-theme="dark"] .toast-item.warning{background:#302b20;border-color:#645333;color:#ead8a7}
 html[data-theme="dark"] .toast-item.warning .toast-mark{background:#45391f;color:#e5bd5c}
 @media(max-width:700px){.draft-panel .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.draft-panel .draft-fields>.confirm-button{grid-column:1/-1;justify-self:stretch}}
