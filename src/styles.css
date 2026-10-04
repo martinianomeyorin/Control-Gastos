@@ -276,3 +276,11 @@ html[data-theme=dark] .chart-settings-menu{background:#1d2620;border-color:#3948
 html[data-theme=dark] .chart-settings-label{color:#9eaba1}
 html[data-theme=dark] .chart-settings-menu button{color:#c0cbc2}
 html[data-theme=dark] .chart-settings-menu button:hover,html[data-theme=dark] .chart-settings-menu button.selected{background:#263b2d;color:#a3d2ad}
+.category-legend{max-height:245px;overflow-y:auto;align-content:start;padding-right:4px}
+.category-legend-item{min-width:0;padding-bottom:7px;border-bottom:1px solid #edf0ed}
+.category-payment-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:2px 7px 0 22px}
+.category-payment-breakdown span{display:flex;flex-direction:column;gap:2px;color:#8b958d;font-size:8px;white-space:nowrap}
+.category-payment-breakdown b{color:#59665c;font-size:9px;font-weight:600}
+html[data-theme=dark] .category-legend-item{border-color:#303c34}
+html[data-theme=dark] .category-payment-breakdown span{color:#9eaba1}
+html[data-theme=dark] .category-payment-breakdown b{color:#c8d3ca}
