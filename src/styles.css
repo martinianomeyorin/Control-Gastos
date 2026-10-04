@@ -136,5 +136,38 @@ html[data-theme="dark"] .category-confirm-modal{background:#1d2620;border-color:
 html[data-theme="dark"] .category-confirm-modal p{color:#a5b0a7}
 html[data-theme="dark"] .category-confirm-modal p strong{color:#e7eee8}
 html[data-theme="dark"] .category-confirm-icon{background:#382725;color:#e28b7e}
+.help-overlay{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:18px;background:#101812a8;backdrop-filter:blur(4px)}
+.help-manual{width:min(850px,100%);max-height:min(760px,calc(100vh - 36px));display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;border:1px solid #e6ebe6;border-radius:20px;background:#fff;color:#27342b;box-shadow:0 28px 90px #07110b55;animation:toast-in .18s ease-out}
+.help-manual-header{display:flex;justify-content:space-between;align-items:flex-start;padding:23px 26px 19px;border-bottom:1px solid #edf1ed}
+.help-manual-kicker{font-size:9px;letter-spacing:1.2px;font-weight:750;color:#518163}
+.help-manual-header h2{font:750 21px Manrope,sans-serif;margin:6px 0 3px}
+.help-manual-header p{font-size:11px;color:#87928a;margin:0}
+.help-close-button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid #e6ebe6;border-radius:8px;background:#fff;color:#69756c;font-size:10px}
+.help-close-button svg{width:14px}
+.help-manual-body{min-height:0;display:grid;grid-template-columns:185px minmax(0,1fr)}
+.help-manual-nav{display:flex;flex-direction:column;gap:4px;padding:18px 12px;border-right:1px solid #edf1ed;background:#fafbf9;overflow-y:auto}
+.help-manual-nav button{min-height:36px;padding:0 11px;border:0;border-radius:8px;background:transparent;text-align:left;color:#707c73;font-size:11px;cursor:pointer}
+.help-manual-nav button:hover{background:#f0f4ef}
+.help-manual-nav button.active{background:#eaf3ec;color:#317154;font-weight:700}
+.help-manual-content{padding:25px 30px;overflow:auto;animation:toast-in .16s ease-out}
+.help-section-index{font-size:9px;letter-spacing:.8px;color:#8da093;font-weight:700}
+.help-manual-content h3{font:750 20px Manrope,sans-serif;margin:8px 0 12px}
+.help-manual-content p{font-size:12px;line-height:1.65;color:#66736a;margin:0 0 14px}
+.help-manual-content ul{display:grid;gap:11px;margin:0;padding-left:19px;color:#66736a;font-size:11px;line-height:1.65}
+.help-manual-content li::marker{color:#5a966b}
+.help-manual-content em{color:#3f7250}
+.help-manual-footer{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;border-top:1px solid #edf1ed;color:#9aa49c;font-size:9px}
+.help-manual-footer .confirm-button{height:33px;font-size:10px}
+.help-manual-footer .confirm-button svg{width:14px}
+html[data-theme="dark"] .help-manual{background:#1d2620;border-color:#344138;color:#e7eee8}
+html[data-theme="dark"] .help-manual-header,html[data-theme="dark"] .help-manual-footer{border-color:#344138}
+html[data-theme="dark"] .help-manual-header p,html[data-theme="dark"] .help-manual-content p,html[data-theme="dark"] .help-manual-content ul{color:#a5b0a7}
+html[data-theme="dark"] .help-manual-nav{background:#19221c;border-color:#344138}
+html[data-theme="dark"] .help-manual-nav button{color:#abb6ad}
+html[data-theme="dark"] .help-manual-nav button:hover{background:#253129}
+html[data-theme="dark"] .help-manual-nav button.active{background:#263b2d;color:#a3d2ad}
+html[data-theme="dark"] .help-manual-content em{color:#9dccaa}
+html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b483f;color:#dce6de}
+@media(max-width:600px){.help-overlay{padding:10px}.help-manual{max-height:calc(100vh - 20px);border-radius:15px}.help-manual-header{padding:17px 16px 14px}.help-manual-header h2{font-size:18px}.help-manual-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.help-manual-nav{flex-direction:row;gap:5px;padding:9px 11px;border-right:0;border-bottom:1px solid #edf1ed;overflow-x:auto}.help-manual-nav button{flex:none;min-height:31px;padding:0 10px;font-size:10px}.help-manual-content{padding:19px 18px}.help-manual-content h3{font-size:18px}.help-manual-footer{padding:10px 13px}.help-manual-footer>span{max-width:58%;line-height:1.4}}
 
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
