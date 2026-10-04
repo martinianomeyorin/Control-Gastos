@@ -122,5 +122,18 @@ html[data-theme="dark"] .date-filter-control>button{background:#29362e;color:#b9
 .legend-row{width:100%;padding:4px 6px;border:0;border-radius:8px;background:transparent;text-align:left;cursor:pointer;transition:background .15s ease,transform .15s ease}
 .legend-row:hover,.legend-row.selected{background:#f1f5f0;transform:translateX(3px)}
 html[data-theme="dark"] .legend-row:hover,html[data-theme="dark"] .legend-row.selected{background:#27352b}
+.category-confirm-modal{width:min(430px,calc(100vw - 32px));padding:25px;border:1px solid #e6ebe6;border-radius:18px;background:#fff;color:#27352d;box-shadow:0 24px 80px #101b1480;animation:toast-in .18s ease-out}
+.category-confirm-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#fbefed;color:#bd6557;margin-bottom:16px}
+.category-confirm-icon svg{width:20px}
+.category-confirm-modal h2{font:700 17px Manrope,sans-serif;margin:0 0 8px}
+.category-confirm-modal p{font-size:12px;line-height:1.6;color:#758078;margin:0 0 20px}
+.category-confirm-modal p strong{color:#3b493f}
+.category-confirm-modal .edit-expense-actions{justify-content:flex-end}
+.danger-confirm-button{min-height:34px;padding:0 13px;border:0;border-radius:8px;background:#b95145;color:#fff;font-size:10px;font-weight:650}
+.danger-confirm-button:hover{background:#a43f35}
+html[data-theme="dark"] .category-confirm-modal{background:#1d2620;border-color:#344138;color:#e7eee8}
+html[data-theme="dark"] .category-confirm-modal p{color:#a5b0a7}
+html[data-theme="dark"] .category-confirm-modal p strong{color:#e7eee8}
+html[data-theme="dark"] .category-confirm-icon{background:#382725;color:#e28b7e}
 
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
