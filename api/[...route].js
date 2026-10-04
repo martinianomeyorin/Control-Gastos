@@ -4,7 +4,7 @@ import { db } from './_db.js';
 
 const SESSION_COOKIE = 'cg_session';
 const OAUTH_COOKIE = 'cg_oauth';
-const appDataKeys = ['expenses', 'cards', 'services', 'finance', 'closings'];
+const appDataKeys = ['expenses', 'cards', 'services', 'finance', 'closings', 'categories'];
 const secret = () => {
   const value = process.env.SESSION_SECRET;
   if (!value || value.length < 32) throw new Error('SESSION_SECRET debe tener al menos 32 caracteres.');
