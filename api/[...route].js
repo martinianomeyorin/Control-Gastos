@@ -188,7 +188,7 @@ async function sendDueReminders(request) {
   for (const user of users) {
     const { rows } = await client.execute({ sql: "SELECT namespace, payload FROM user_data WHERE user_id = ? AND namespace IN ('services', 'cards', 'closings', 'expenses')", args: [user.id] });
     const data = Object.fromEntries(rows.map(row => [row.namespace, JSON.parse(row.payload)]));
-    const services = (data.services || []).filter(service => service.status !== 'Pagado' && service.dueDate === date).map(service => ({ kind: 'Servicio', name: service.name, amount: Number(service.amount) || 0, detail: `Medio de pago: ${service.payment || 'Sin especificar'}` }));
+    const services = (data.services || []).filter(service => service.status === 'No Pagado' && service.dueDate === date).map(service => ({ kind: 'Servicio', name: service.name, amount: Number(service.amount) || 0, detail: `Medio de pago: ${service.payment || 'Sin especificar'}` }));
     const cards = (data.cards || []).flatMap(card => {
       const cycle = data.closings?.[month]?.[card];
       const due = typeof cycle === 'object' ? cycle?.due : null;
