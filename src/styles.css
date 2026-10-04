@@ -186,6 +186,13 @@ html[data-theme="dark"] .help-close-button{background:#202b24;border-color:#3b48
 .draft-panel .currency-entry{grid-template-columns:minmax(0,1fr) 62px}
 .draft-panel .exchange-rate-box{min-width:0}
 .bank-info .card-usd-total{grid-column:1/-1;font-size:8px;color:#79a98a;font-weight:650}
+.toast-item.warning{border-color:#ead8ad;color:#725923}
+.toast-item.warning .toast-mark{background:#fbf2dc;color:#a57b1e}
+.bank-info .card-currency-totals{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center}
+.bank-info .card-currency-totals span{font-size:8px;color:#9aa39c}
+.bank-info .card-currency-totals b{grid-column:auto;font-size:9px;text-align:right;white-space:nowrap}
+html[data-theme="dark"] .toast-item.warning{background:#302b20;border-color:#645333;color:#ead8a7}
+html[data-theme="dark"] .toast-item.warning .toast-mark{background:#45391f;color:#e5bd5c}
 @media(max-width:700px){.draft-panel .draft-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.draft-panel .draft-fields>.confirm-button{grid-column:1/-1;justify-self:stretch}}
 @media(max-width:420px){.draft-panel .draft-fields{grid-template-columns:1fr}.draft-panel .draft-fields>.confirm-button{grid-column:1}}
 .exchange-disclaimer{margin-top:3px}
