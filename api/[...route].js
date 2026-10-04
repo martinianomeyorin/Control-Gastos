@@ -195,28 +195,13 @@ async function sendGmail({ from, appPassword, to, subject, html, text }) {
     await command('QUIT', [221]);
   } finally { socket.end(); }
 }
-function reminderEmail({ user, items, displayDate, origin, test = false }) {
+function reminderEmail({ user, items, displayDate, origin }) {
   const currency = amount => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
   const htmlItems = items.map(item => `<li style="margin:0 0 14px"><strong>${escapeHtml(item.kind)}: ${escapeHtml(item.name)}</strong><br>${escapeHtml(item.detail)}<br>Monto: ${escapeHtml(currency(item.amount))}</li>`).join('');
   const textItems = items.map(item => `• ${item.kind}: ${item.name} — ${item.detail} — ${currency(item.amount)}`).join('\n');
   const subject = items.length === 1 ? `Vence hoy: ${items[0].name}` : `Tenés ${items.length} vencimientos hoy`;
   const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#24352a"><img src="${escapeHtml(new URL('/logoControlGastos.png', origin))}" alt="Control Gastos" width="88" style="display:block;width:88px;height:auto;margin:0 auto 18px"><h2>Vencimientos de hoy</h2><p>Hola ${escapeHtml(user.email)}, estos son tus pagos que vencen hoy (${displayDate}):</p><ul style="padding-left:20px">${htmlItems}</ul><p>Ingresá a Control Gastos para revisar tus vencimientos.</p></div>`;
-  return { subject: test ? `[Prueba] ${subject}` : subject, html, text: `Vencimientos de hoy (${displayDate}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` };
-}
-async function sendTestReminderEmail(request) {
-  if (!requireSameOrigin(request)) return response({ error: 'Origen inválido.' }, 403);
-  const user = await currentUser(request);
-  if (!user?.email) return response({ error: 'Iniciá sesión para enviar la prueba.' }, 401);
-  const gmailUser = process.env.GMAIL_USER, appPassword = process.env.GMAIL_APP_PASSWORD;
-  if (!gmailUser || !appPassword) return response({ error: 'Falta configurar GMAIL_USER y GMAIL_APP_PASSWORD.' }, 503);
-  const date = buenosAiresDate(), displayDate = `${date.slice(8, 10)}/${date.slice(5, 7)}/${date.slice(0, 4)}`;
-  const items = [
-    { kind: 'Servicio', name: 'Servicio de ejemplo', amount: 24500, detail: 'Medio de pago: Efectivo' },
-    { kind: 'Tarjeta', name: 'Tarjeta de ejemplo', amount: 18750.5, detail: 'Vence hoy' },
-  ];
-  const mail = reminderEmail({ user, items, displayDate, origin: request.url, test: true });
-  await sendGmail({ from: gmailUser, appPassword, to: user.email, ...mail });
-  return response({ ok: true, to: user.email });
+  return { subject, html, text: `Vencimientos de hoy (${displayDate}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` };
 }
 function monthlyCardCharge(expense, month) {
   if (!expense.payment || ['Efectivo', 'Débito'].includes(expense.payment)) return 0;
@@ -266,7 +251,6 @@ export async function handle(request) {
   try {
     if (path === '/api/exchange-rate' && request.method === 'GET') return await exchangeRateHandler();
     if (path === '/api/cron/reminders' && request.method === 'GET') return await sendDueReminders(request);
-    if (path === '/api/email/test' && request.method === 'POST') return await sendTestReminderEmail(request);
     if (path === '/api/auth/google/start' && request.method === 'GET') return await startGoogle(request);
     if (path === '/api/auth/google/callback' && request.method === 'GET') return await googleCallback(request);
     if (path === '/api/auth/session' && request.method === 'GET') return response({ user: await currentUser(request) }, 200, { 'Cache-Control': 'no-store' });
