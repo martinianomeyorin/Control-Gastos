@@ -1,4 +1,5 @@
 import { randomBytes, createHmac, createHash, timingSafeEqual } from 'node:crypto';
+import { connect as connectTls } from 'node:tls';
 import { db } from './_db.js';
 
 const SESSION_COOKIE = 'cg_session';
@@ -114,6 +115,58 @@ function buenosAiresDate() {
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 }
+async function sendGmail({ from, appPassword, to, subject, html, text }) {
+  if (!/^[^\s<>]+@gmail\.com$/i.test(from) || !/^[^\s<>]+@[^\s<>]+$/.test(to)) throw new Error('GMAIL_USER o destinatario no tienen un formato válido.');
+  const socket = connectTls({ host: 'smtp.gmail.com', port: 465, servername: 'smtp.gmail.com' });
+  socket.setTimeout(20000, () => socket.destroy(new Error('Tiempo de espera agotado al conectar con Gmail SMTP.')));
+  let buffer = '', current = [], closed = false;
+  const replies = [], readers = [];
+  const finishReply = reply => { const reader = readers.shift(); if (reader) reader.resolve(reply); else replies.push(reply); };
+  const failReaders = error => { closed = true; while (readers.length) readers.shift().reject(error); };
+  socket.on('data', chunk => {
+    buffer += chunk.toString('utf8');
+    const lines = buffer.split(/\r?\n/); buffer = lines.pop() || '';
+    for (const line of lines) {
+      current.push(line);
+      if (/^\d{3} /.test(line)) { finishReply(current.join('\n')); current = []; }
+    }
+  });
+  socket.on('error', failReaders);
+  socket.on('close', () => { if (!closed) failReaders(new Error('Gmail SMTP cerró la conexión.')); });
+  const readReply = () => replies.length ? Promise.resolve(replies.shift()) : new Promise((resolve, reject) => readers.push({ resolve, reject }));
+  const expect = async codes => {
+    const reply = await readReply();
+    const code = Number(reply.slice(0, 3));
+    if (!codes.includes(code)) throw new Error(`Gmail SMTP respondió ${code}: ${reply.split('\n').at(-1).slice(4)}`);
+    return reply;
+  };
+  const command = async (value, codes) => { socket.write(`${value}\r\n`); return expect(codes); };
+  try {
+    await new Promise((resolve, reject) => { socket.once('secureConnect', resolve); socket.once('error', reject); });
+    await expect([220]);
+    await command('EHLO control-gastos', [250]);
+    await command('AUTH LOGIN', [334]);
+    await command(Buffer.from(from).toString('base64'), [334]);
+    await command(Buffer.from(appPassword.replace(/\s/g, '')).toString('base64'), [235]);
+    await command(`MAIL FROM:<${from}>`, [250]);
+    await command(`RCPT TO:<${to}>`, [250, 251]);
+    await command('DATA', [354]);
+    const boundary = `cg-${randomBytes(12).toString('hex')}`;
+    const encodedSubject = `=?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`;
+    const body = [
+      `From: Control Gastos <${from}>`, `To: ${to}`, `Subject: ${encodedSubject}`, 'MIME-Version: 1.0',
+      `Content-Type: multipart/alternative; boundary="${boundary}"`, '',
+      `--${boundary}`, 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
+      Buffer.from(text, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') || '',
+      `--${boundary}`, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: base64', '',
+      Buffer.from(html, 'utf8').toString('base64').match(/.{1,76}/g)?.join('\r\n') || '',
+      `--${boundary}--`, '',
+    ].join('\r\n').replace(/(^|\r\n)\./g, '$1..');
+    socket.write(`${body}\r\n.\r\n`);
+    await expect([250]);
+    await command('QUIT', [221]);
+  } finally { socket.end(); }
+}
 function monthlyCardCharge(expense, month) {
   if (!expense.payment || ['Efectivo', 'Débito'].includes(expense.payment)) return 0;
   const start = expense.firstMonth || expense.date?.slice(0, 7);
@@ -127,8 +180,8 @@ function monthlyCardCharge(expense, month) {
 async function sendDueReminders(request) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) return response({ error: 'No autorizado.' }, 401);
-  const apiKey = process.env.RESEND_API_KEY, from = process.env.REMINDER_FROM_EMAIL;
-  if (!apiKey || !from) return response({ error: 'Falta configurar RESEND_API_KEY y REMINDER_FROM_EMAIL.' }, 503);
+  const gmailUser = process.env.GMAIL_USER, appPassword = process.env.GMAIL_APP_PASSWORD;
+  if (!gmailUser || !appPassword) return response({ error: 'Falta configurar GMAIL_USER y GMAIL_APP_PASSWORD.' }, 503);
   const date = buenosAiresDate(), month = date.slice(0, 7), client = await db();
   const { rows: users } = await client.execute('SELECT id, email FROM users');
   let sent = 0, skipped = 0;
@@ -152,8 +205,7 @@ async function sendDueReminders(request) {
     const htmlItems = items.map(item => `<li style="margin:0 0 14px"><strong>${escapeHtml(item.kind)}: ${escapeHtml(item.name)}</strong><br>${escapeHtml(item.detail)}<br>Monto: ${escapeHtml(currency(item.amount))}</li>`).join('');
     const textItems = items.map(item => `• ${item.kind}: ${item.name} — ${item.detail} — ${currency(item.amount)}`).join('\n');
     const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#24352a"><h2>Vencimientos de hoy</h2><p>Hola ${escapeHtml(user.email)}, estos son tus pagos que vencen hoy (${date}):</p><ul style="padding-left:20px">${htmlItems}</ul><p>Ingresá a Control Gastos para revisar tus vencimientos.</p></div>`;
-    const emailResponse = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey }, body: JSON.stringify({ from, to: [user.email], subject: items.length === 1 ? `Vence hoy: ${items[0].name}` : `Tenés ${items.length} vencimientos hoy`, html, text: `Vencimientos de hoy (${date}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` }) });
-    if (!emailResponse.ok) { console.error('Resend respondió', emailResponse.status, await emailResponse.text()); throw new Error(`No se pudo enviar el recordatorio para ${user.email}.`); }
+    await sendGmail({ from: gmailUser, appPassword, to: user.email, subject: items.length === 1 ? `Vence hoy: ${items[0].name}` : `Tenés ${items.length} vencimientos hoy`, html, text: `Vencimientos de hoy (${date}):\n\n${textItems}\n\nIngresá a Control Gastos para revisar tus vencimientos.` });
     await client.execute({ sql: 'INSERT INTO reminder_delivery(idempotency_key) VALUES(?) ON CONFLICT(idempotency_key) DO NOTHING', args: [idempotencyKey] });
     sent++;
   }
