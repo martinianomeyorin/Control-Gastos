@@ -284,3 +284,5 @@ html[data-theme=dark] .chart-settings-menu button:hover,html[data-theme=dark] .c
 html[data-theme=dark] .category-legend-item{border-color:#303c34}
 html[data-theme=dark] .category-payment-breakdown span{color:#9eaba1}
 html[data-theme=dark] .category-payment-breakdown b{color:#c8d3ca}
+input[type=number]{appearance:textfield;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
