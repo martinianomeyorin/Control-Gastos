@@ -286,3 +286,9 @@ html[data-theme=dark] .category-payment-breakdown span{color:#9eaba1}
 html[data-theme=dark] .category-payment-breakdown b{color:#c8d3ca}
 input[type=number]{appearance:textfield;-moz-appearance:textfield}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.panel-heading-actions{display:flex;align-items:center;gap:12px}
+.export-button{width:31px;height:31px;display:grid;place-items:center;border:1px solid #dce8de;border-radius:9px;background:#eff6f0;color:#358052;cursor:pointer;transition:background .15s ease,transform .15s ease}
+.export-button svg{width:17px;height:17px}
+.export-button:hover{background:#deeee1;transform:translateY(-1px)}
+html[data-theme=dark] .export-button{background:#23372a;border-color:#3c5a44;color:#8fc59a}
+html[data-theme=dark] .export-button:hover{background:#2d4935}
