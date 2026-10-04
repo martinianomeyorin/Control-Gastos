@@ -111,4 +111,16 @@ html[data-theme="dark"] .date-filter-control>button{background:#29362e;color:#b9
 @media(max-width:700px){.table-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 0}.table-filters>label,.date-filter-control{display:grid;gap:3px;align-items:stretch}.table-filters .sr-only{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip:auto;white-space:normal;border:0;font-size:8px;color:#89968c}.table-filters>span:last-child{display:none}}
 @media(max-width:390px){.table-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* Keep the movement date picker visible beyond its panel. */
+.transactions-panel{overflow:visible;position:relative;z-index:2}
+.date-filter-control:has(.date-popover){position:relative;z-index:9}
+.donut-slice{cursor:pointer;transform-box:view-box;transform-origin:center;transition:transform .2s ease,stroke-width .2s ease,filter .2s ease;outline:none}
+.donut-slice:hover,.donut-slice.selected{filter:drop-shadow(0 3px 4px #101b1460)}
+.donut-slice:focus-visible{filter:drop-shadow(0 0 4px #6caf80)}
+.donut-center span{max-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.donut-center.has-selection strong{font-size:14px}
+.legend-row{width:100%;padding:4px 6px;border:0;border-radius:8px;background:transparent;text-align:left;cursor:pointer;transition:background .15s ease,transform .15s ease}
+.legend-row:hover,.legend-row.selected{background:#f1f5f0;transform:translateX(3px)}
+html[data-theme="dark"] .legend-row:hover,html[data-theme="dark"] .legend-row.selected{background:#27352b}
+
 .brand-logo:hover{animation:brand-hover-spin .7s ease-in-out}@keyframes brand-hover-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
