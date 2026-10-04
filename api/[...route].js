@@ -20,6 +20,14 @@ const signJwt = payload => {
 const cookie = (name, value, maxAge, secure) => `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure ? '; Secure' : ''}`;
 const clearCookie = (name, secure) => `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure ? '; Secure' : ''}`;
 const response = (body, status = 200, headers = {}) => Response.json(body, { status, headers });
+const usernameCooldownMs = 20 * 24 * 60 * 60 * 1000;
+function usernameChangeDaysRemaining(updatedAt) {
+  const timestamp = Date.parse(`${String(updatedAt || '').replace(' ', 'T')}Z`);
+  return Number.isFinite(timestamp) ? Math.max(0, Math.ceil((timestamp + usernameCooldownMs - Date.now()) / 86400000)) : 0;
+}
+function usernameCooldownResponse(days) {
+  return response({ error: `Vas a poder cambiar tu nombre de usuario nuevamente en ${days} ${days === 1 ? 'día' : 'días'}.`, daysRemaining: days }, 429);
+}
 function redirect(url, values = {}) {
   const headers = new Headers({ Location: url });
   for (const [name, value] of Object.entries(values)) {
@@ -111,8 +119,27 @@ async function dataHandler(request, user) {
     const username = String(profileUpdate.value?.username || '').trim().replace(/^@/, '');
     if (!/^[\p{L}\p{N}][\p{L}\p{N}_.-]{2,23}$/u.test(username)) return response({ error: 'Usá un nombre de 3 a 24 caracteres: letras, números, punto, guion o guion bajo.' }, 400);
     const normalized = username.normalize('NFKC').toLocaleLowerCase('es-AR');
+    const currentResult = await client.execute({ sql: 'SELECT normalized, updated_at FROM usernames WHERE user_id = ?', args: [user.id] });
+    const current = currentResult.rows[0];
+    if (current?.normalized === normalized) return response({ ok: true });
+    if (current) {
+      const daysRemaining = usernameChangeDaysRemaining(current.updated_at);
+      if (daysRemaining > 0) return usernameCooldownResponse(daysRemaining);
+    }
     try {
-      await client.execute({ sql: 'INSERT INTO usernames(user_id, username, normalized) VALUES(?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET username = excluded.username, normalized = excluded.normalized', args: [user.id, username, normalized] });
+      if (current) {
+        const update = await client.execute({ sql: `UPDATE usernames SET username = ?, normalized = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND updated_at = ? AND datetime(updated_at) <= datetime('now', '-20 days')`, args: [username, normalized, user.id, current.updated_at] });
+        if (!update.changes) {
+          const latestResult = await client.execute({ sql: 'SELECT normalized, updated_at FROM usernames WHERE user_id = ?', args: [user.id] });
+          const latest = latestResult.rows[0];
+          if (latest?.normalized === normalized) return response({ ok: true });
+          const retryDays = usernameChangeDaysRemaining(latest?.updated_at);
+          if (retryDays > 0) return usernameCooldownResponse(retryDays);
+          return response({ error: 'No se pudo actualizar el nombre de usuario. Intentá nuevamente.' }, 409);
+        }
+      } else {
+        await client.execute({ sql: 'INSERT INTO usernames(user_id, username, normalized, updated_at) VALUES(?, ?, ?, CURRENT_TIMESTAMP)', args: [user.id, username, normalized] });
+      }
     } catch (error) {
       if (/unique constraint/i.test(error.message || '')) return response({ error: 'Ese nombre de usuario ya está en uso. Probá con otro.' }, 409);
       throw error;
