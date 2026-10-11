@@ -145,6 +145,20 @@ async function mobileGoogleSession(request) {
   return response({ token: signJwt({ sub: user.id, email: user.email, name: user.name, picture: user.picture }, 'control-gastos-mobile'), user }, 200, { 'Cache-Control': 'no-store' });
 }
 
+async function mobileCookieSession(request, secure) {
+  if (request.method !== 'POST') return response({ error: 'Método no permitido.' }, 405);
+  const bearer = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!bearer) return response({ error: 'Iniciá sesión en la app para continuar.' }, 401);
+  const user = await currentUser(request);
+  let audience;
+  try { audience = JSON.parse(Buffer.from(bearer.split('.')[1], 'base64url').toString('utf8')).aud; } catch { /* Invalid tokens are rejected below. */ }
+  if (!user || audience !== 'control-gastos-mobile') return response({ error: 'La sesión móvil venció. Volvé a iniciar sesión.' }, 401);
+  return response({ ok: true }, 200, {
+    'Set-Cookie': cookie(SESSION_COOKIE, bearer, 1209600, secure),
+    'Cache-Control': 'no-store',
+  });
+}
+
 async function dataHandler(request, user) {
   const client = await db();
   if (request.method === 'GET') {
@@ -327,6 +341,7 @@ export async function handle(request) {
     if (path === '/api/auth/google/start' && request.method === 'GET') return await startGoogle(request);
     if (path === '/api/auth/google/callback' && request.method === 'GET') return await googleCallback(request);
     if (path === '/api/auth/mobile/google' && request.method === 'POST') return await mobileGoogleSession(request);
+    if (path === '/api/auth/mobile/session' && request.method === 'POST') return await mobileCookieSession(request, secure);
     if (path === '/api/auth/session' && request.method === 'GET') return response({ user: await currentUser(request) }, 200, { 'Cache-Control': 'no-store' });
     if (path === '/api/auth/logout' && request.method === 'POST') return requireSameOrigin(request) ? response({ ok: true }, 200, { 'Set-Cookie': clearCookie(SESSION_COOKIE, secure) }) : response({ error: 'Origen inválido.' }, 403);
     if (path === '/api/data') {
