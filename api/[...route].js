@@ -116,11 +116,22 @@ async function mobileGoogleSession(request) {
   ].filter(Boolean))];
   if (!audiences.length) return response({ error: 'Falta configurar los clientes OAuth de Google.' }, 503);
 
+  // Decode only to diagnose an audience mismatch. Verification below remains
+  // authoritative; this unverified payload is never used to create a session.
+  let declaredAudience;
+  try {
+    declaredAudience = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64url').toString('utf8')).aud;
+  } catch { /* The verifier reports malformed or invalid tokens below. */ }
+
   let profile;
   try {
     const ticket = await googleTokenVerifier.verifyIdToken({ idToken, audience: audiences });
     profile = ticket.getPayload();
   } catch {
+    const tokenAudiences = (Array.isArray(declaredAudience) ? declaredAudience : [declaredAudience]).filter(value => typeof value === 'string');
+    if (tokenAudiences.length && !tokenAudiences.some(audience => audiences.includes(audience))) {
+      return response({ error: `El token de Google corresponde a otro cliente OAuth. Audiencia recibida: ${tokenAudiences.join(', ')}.` }, 401);
+    }
     return response({ error: 'El inicio de Google venció o no se pudo verificar. Probá de nuevo.' }, 401);
   }
   if (!profile?.sub || !profile.email || profile.email_verified !== true) return response({ error: 'Google no devolvió una identidad verificada.' }, 401);
