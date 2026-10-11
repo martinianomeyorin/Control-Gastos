@@ -1,19 +1,21 @@
 import { randomBytes, createHmac, createHash, timingSafeEqual } from 'node:crypto';
 import { connect as connectTls } from 'node:tls';
+import { OAuth2Client } from 'google-auth-library';
 import { db } from './_db.js';
 
 const SESSION_COOKIE = 'cg_session';
 const OAUTH_COOKIE = 'cg_oauth';
 const appDataKeys = ['expenses', 'cards', 'services', 'finance', 'closings', 'categories', 'categoryGroups', 'budgets', 'profile'];
+const googleTokenVerifier = new OAuth2Client();
 const secret = () => {
   const value = process.env.SESSION_SECRET;
   if (!value || value.length < 32) throw new Error('SESSION_SECRET debe tener al menos 32 caracteres.');
   return new TextEncoder().encode(value);
 };
 const b64 = value => Buffer.from(value).toString('base64url');
-const signJwt = payload => {
+const signJwt = (payload, audience = 'control-gastos-web') => {
   const head = b64(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body = b64(JSON.stringify({ ...payload, iss: 'control-gastos', aud: 'control-gastos-web', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 1209600 }));
+  const body = b64(JSON.stringify({ ...payload, iss: 'control-gastos', aud: audience, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 1209600 }));
   const unsigned = `${head}.${body}`;
   return `${unsigned}.${createHmac('sha256', secret()).update(unsigned).digest('base64url')}`;
 };
@@ -44,7 +46,8 @@ function redirectUri(request) {
   return process.env.GOOGLE_REDIRECT_URI || new URL('/api/auth/google/callback', request.url).toString();
 }
 async function currentUser(request) {
-  const token = parseCookies(request)[SESSION_COOKIE];
+  const bearerToken = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+  const token = bearerToken || parseCookies(request)[SESSION_COOKIE];
   if (!token) return null;
   try {
     const [head, body, signature] = token.split('.');
@@ -52,7 +55,7 @@ async function currentUser(request) {
     const supplied = Buffer.from(signature || '', 'base64url');
     if (expected.length !== supplied.length || !timingSafeEqual(expected, supplied)) return null;
     const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
-    if (payload.iss !== 'control-gastos' || payload.aud !== 'control-gastos-web' || payload.exp < Date.now() / 1000 || !payload.sub) return null;
+    if (payload.iss !== 'control-gastos' || !['control-gastos-web', 'control-gastos-mobile'].includes(payload.aud) || payload.exp < Date.now() / 1000 || !payload.sub) return null;
     return { id: payload.sub, email: payload.email, name: payload.name, picture: payload.picture || '' };
   } catch { return null; }
 }
@@ -100,6 +103,37 @@ async function googleCallback(request) {
   return redirect('/', { 'Set-Cookie': [cookie(SESSION_COOKIE, session, 1209600, secure), clearCookie(OAUTH_COOKIE, secure)], 'Cache-Control': 'no-store' });
 }
 
+async function mobileGoogleSession(request) {
+  if (request.method !== 'POST') return response({ error: 'Método no permitido.' }, 405);
+  let idToken;
+  try { idToken = (await request.json())?.idToken; } catch { return response({ error: 'Solicitud inválida.' }, 400); }
+  if (typeof idToken !== 'string' || !idToken || idToken.length > 20000) return response({ error: 'Falta un token de Google válido.' }, 400);
+
+  const audiences = [...new Set([
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_ANDROID_CLIENT_ID,
+    process.env.GOOGLE_IOS_CLIENT_ID,
+  ].filter(Boolean))];
+  if (!audiences.length) return response({ error: 'Falta configurar los clientes OAuth de Google.' }, 503);
+
+  let profile;
+  try {
+    const ticket = await googleTokenVerifier.verifyIdToken({ idToken, audience: audiences });
+    profile = ticket.getPayload();
+  } catch {
+    return response({ error: 'El inicio de Google venció o no se pudo verificar. Probá de nuevo.' }, 401);
+  }
+  if (!profile?.sub || !profile.email || profile.email_verified !== true) return response({ error: 'Google no devolvió una identidad verificada.' }, 401);
+
+  const client = await db();
+  await client.execute({
+    sql: `INSERT INTO users(id, google_sub, email, name, picture) VALUES(?, ?, ?, ?, ?) ON CONFLICT(google_sub) DO UPDATE SET email=excluded.email, name=excluded.name, picture=excluded.picture`,
+    args: [profile.sub, profile.sub, profile.email, profile.name || profile.email, profile.picture || ''],
+  });
+  const user = { id: profile.sub, email: profile.email, name: profile.name || profile.email, picture: profile.picture || '' };
+  return response({ token: signJwt({ sub: user.id, email: user.email, name: user.name, picture: user.picture }, 'control-gastos-mobile'), user }, 200, { 'Cache-Control': 'no-store' });
+}
+
 async function dataHandler(request, user) {
   const client = await db();
   if (request.method === 'GET') {
@@ -109,7 +143,8 @@ async function dataHandler(request, user) {
     if (username.rows[0]) data.profile = { username: username.rows[0].username };
     return response({ user, data });
   }
-  if (request.method !== 'PUT' || !requireSameOrigin(request)) return response({ error: 'Método no permitido.' }, 405);
+  const usesBearerSession = /^Bearer\s+/i.test(request.headers.get('authorization') || '');
+  if (request.method !== 'PUT' || (!usesBearerSession && !requireSameOrigin(request))) return response({ error: 'Método no permitido.' }, 405);
   const body = await request.json();
   const updates = Array.isArray(body.updates) ? body.updates : [{ key: body.key, value: body.value }];
   if (!updates.length || updates.length > appDataKeys.length || updates.some(item => !appDataKeys.includes(item.key) || item.value === undefined) || new Set(updates.map(item => item.key)).size !== updates.length) return response({ error: 'Datos inválidos.' }, 400);
@@ -280,6 +315,7 @@ export async function handle(request) {
     if (path === '/api/cron/reminders' && request.method === 'GET') return await sendDueReminders(request);
     if (path === '/api/auth/google/start' && request.method === 'GET') return await startGoogle(request);
     if (path === '/api/auth/google/callback' && request.method === 'GET') return await googleCallback(request);
+    if (path === '/api/auth/mobile/google' && request.method === 'POST') return await mobileGoogleSession(request);
     if (path === '/api/auth/session' && request.method === 'GET') return response({ user: await currentUser(request) }, 200, { 'Cache-Control': 'no-store' });
     if (path === '/api/auth/logout' && request.method === 'POST') return requireSameOrigin(request) ? response({ ok: true }, 200, { 'Set-Cookie': clearCookie(SESSION_COOKIE, secure) }) : response({ error: 'Origen inválido.' }, 403);
     if (path === '/api/data') {

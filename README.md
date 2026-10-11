@@ -37,6 +37,10 @@ En local se guarda en `data/control-gastos.db`, ignorado por Git. La API, el fro
 
 El acceso de Google solo solicita `openid email profile`. No guardamos tokens de Google. La cookie de sesión se firma con `SESSION_SECRET`.
 
+### App móvil
+
+La app nativa vive en el repositorio local `work/control-gastos-mobile`. Usa Google Sign-In nativo y la misma API/base de datos; no se conecta directamente a Turso. Para habilitarla en producción, configurá `GOOGLE_ANDROID_CLIENT_ID` y `GOOGLE_IOS_CLIENT_ID` en Vercel y desplegá la ruta `POST /api/auth/mobile/google` incluida en la API. Consultá el README del repositorio móvil para registrar los clientes OAuth y compilar.
+
 ## Vercel y SQLite
 
 Vercel ejecuta Functions en un entorno sin disco persistente compartido; una SQLite local allí podría perder escrituras o divergir entre instancias. Por eso el código usa un archivo SQLite para desarrollo y la API HTTP de Turso/libSQL, que mantiene compatibilidad con SQLite, en producción.
